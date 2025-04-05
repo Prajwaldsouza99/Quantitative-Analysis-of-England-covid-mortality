@@ -1,0 +1,86 @@
+CREATE TEMPORARY TABLE temp_covid_deaths AS
+SELECT * FROM covid_deaths;
+
+-- Update LA names and codes for the new unitary authorities
+UPDATE temp_covid_deaths
+SET LA_name = 'Cumbria', LA_code = 'E06000063'
+WHERE LA_code IN ('E07000026', 'E07000028', 'E07000029');
+
+UPDATE temp_covid_deaths
+SET LA_name = 'Westmorland and Furness', LA_code = 'E06000064'
+WHERE LA_code IN ('E07000027', 'E07000030', 'E07000031');
+
+UPDATE temp_covid_deaths
+SET LA_name = 'North Yorkshire', LA_code = 'E06000065'
+WHERE LA_code IN ('E07000163', 'E07000164', 'E07000165', 'E07000166', 'E07000167', 'E07000168', 'E07000169');
+
+UPDATE temp_covid_deaths
+SET LA_name = 'Somerset', LA_code = 'E06000066'
+WHERE LA_code IN ('E07000187', 'E07000188', 'E07000189', 'E07000246');
+
+UPDATE temp_covid_deaths
+SET LA_name = 'North Northamptonshire', LA_code = 'E06000061'
+WHERE LA_code IN ('E07000150', 'E07000152', 'E07000153', 'E07000156');
+
+UPDATE temp_covid_deaths
+SET LA_name = 'West Northamptonshire', LA_code = 'E06000062'
+WHERE LA_code IN ('E07000151', 'E07000154', 'E07000155');
+
+UPDATE temp_covid_deaths
+SET LA_name = 'Buckinghamshire', LA_code = 'E06000060'
+WHERE LA_code IN ('E07000004', 'E07000005', 'E07000006', 'E07000007');
+
+UPDATE temp_covid_deaths
+SET LA_name = 'Bournemouth, Christchurch and Poole', LA_code = 'E06000058'
+WHERE LA_code IN ('E06000028', 'E07000048', 'E06000029');
+
+UPDATE temp_covid_deaths
+SET LA_name = 'Dorset', LA_code = 'E06000059'
+WHERE LA_code IN ('E07000049', 'E07000050', 'E07000053', 'E07000051', 'E07000052');
+
+UPDATE temp_covid_deaths
+SET LA_name = 'East Suffolk', LA_code = 'E07000244'
+WHERE LA_code IN ('E07000205', 'E07000206');
+
+UPDATE temp_covid_deaths
+SET LA_name = 'West Suffolk', LA_code = 'E07000245'
+WHERE LA_code IN ('E07000201', 'E07000204');
+
+UPDATE temp_covid_deaths
+SET LA_name = 'Somerset West and Taunton', LA_code = 'E07000246'
+WHERE LA_code IN ('E07000190', 'E07000191');
+
+UPDATE temp_covid_deaths
+SET LA_name = 'Folkestone and Hythe'
+WHERE LA_code = 'E07000112';
+
+-- Sum the values for the merged areas
+CREATE TEMPORARY TABLE merged_data AS
+SELECT 
+    LA_name,
+    LA_code,
+    SUM(March_2020) AS March_2020,
+    SUM(April_2020) AS April_2020,
+    SUM(May_2020) AS May_2020,
+    SUM(June_2020) AS June_2020,
+    SUM(July_2020) AS July_2020,
+    SUM(August_2020) AS August_2020,
+    SUM(September_2020) AS September_2020,
+    SUM(October_2020) AS October_2020,
+    SUM(November_2020) AS November_2020,
+    SUM(December_2020) AS December_2020,
+    SUM(January_2021) AS January_2021,
+    SUM(February_2021) AS February_2021,
+    SUM(March_2021) AS March_2021,
+    SUM(April_2021) AS April_2021,
+    SUM(Total) AS Total
+FROM temp_covid_deaths
+GROUP BY LA_name, LA_code;
+
+-- Replace the original table with the updated data
+DROP TABLE covid_deaths;
+CREATE TABLE covid_deaths AS SELECT * FROM merged_data;
+
+-- Clean up temporary tables
+DROP TABLE temp_covid_deaths;
+DROP TABLE merged_data;
